@@ -6,7 +6,7 @@ const startCase = require('lodash.startcase')
 
 const config = require('./config')
 
-const stripNumbers = require('./src/utils/stripNumbersFromPath')
+const { canonicalPath } = require('./src/utils/canonicalUrl')
 
 exports.createPages = ({ graphql, actions }) => {
   const { createPage } = actions
@@ -31,7 +31,7 @@ exports.createPages = ({ graphql, actions }) => {
             }
           }
         `,
-      ).then((result) => {
+      ).then(result => {
         if (result.errors) {
           console.log(result.errors) // eslint-disable-line no-console
           reject(result.errors)
@@ -40,7 +40,7 @@ exports.createPages = ({ graphql, actions }) => {
         // Create blog posts pages.
         result.data.allMdx.edges.forEach(({ node }) => {
           createPage({
-            path: node.fields.slug ? stripNumbers(node.fields.slug) : '/',
+            path: canonicalPath(node.fields.slug),
             component: path.resolve('./src/templates/docs.js'),
             context: {
               id: node.fields.id,

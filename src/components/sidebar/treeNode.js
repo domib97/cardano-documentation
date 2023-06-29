@@ -1,9 +1,12 @@
 import React from 'react'
+import { ExternalLink } from 'react-feather'
+
 import OpenedSvg from '../images/opened'
 import ClosedSvg from '../images/closed'
 import config from '../../../config'
 import Link from '../link'
 import stripNumbers from '../../utils/stripNumbersFromPath'
+import { canonicalPath } from '../../utils/canonicalUrl'
 
 const TreeNode = ({
   className = '',
@@ -11,6 +14,7 @@ const TreeNode = ({
   collapsed,
   url,
   title,
+  externalUrl,
   items,
   ...rest
 }) => {
@@ -28,10 +32,10 @@ const TreeNode = ({
   if (typeof document != 'undefined') {
     location = document.location
   }
-  const active =
-    location &&
-    (location.pathname === url ||
-      location.pathname === config.gatsby.pathPrefix + url)
+
+  const active = location
+    ? canonicalPath(location.pathname) === canonicalPath(url)
+    : false
 
   const calculatedClassName = `${className} item ${active ? 'active' : ''}`
 
@@ -53,8 +57,10 @@ const TreeNode = ({
             </a>
           )
         : title && (
-            <Link to={url}>
+            <Link to={externalUrl || canonicalPath(url)}>
               {title}
+              {externalUrl && <ExternalLink size={14} />}
+
               {!config.sidebar.frontLine && title && hasChildren ? (
                 <button
                   onClick={collapse}
